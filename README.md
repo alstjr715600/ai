@@ -1,4 +1,4 @@
-# LocalHub MVP — Gemini + 로컬 JSON 버전
+# YookA_Map MVP — Gemini + 로컬 JSON 버전
 
 실시간 서울시 Open API 호출을 제거한 안정적인 MVP입니다.
 
@@ -20,7 +20,7 @@ GEMINI_MODEL=gemini-3.5-flash
 
 ## 2. Windows Git Bash 백엔드 실행
 ```bash
-cd ~/Downloads/localhub-mvp/backend
+cd ~/Downloads/YookA_Map-mvp/backend
 py -3.11 -m venv venv
 source venv/Scripts/activate
 python -m pip install --upgrade pip
@@ -33,7 +33,7 @@ Swagger: `http://127.0.0.1:8000/docs`
 ## 3. 프론트 실행
 새 터미널:
 ```bash
-cd ~/Downloads/localhub-mvp/frontend
+cd ~/Downloads/YookA_Map-mvp/frontend
 npm install
 npm run dev
 ```

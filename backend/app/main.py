@@ -9,7 +9,7 @@ from app import models
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="LocalHub MVP API",
+    title="YookA_Map MVP API",
     description="영유아와 함께 살기 좋은 서울 자치구 추천 MVP API",
     version="1.0.0",
 )

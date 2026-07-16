@@ -5,7 +5,7 @@
         <path d="M12 2C7.5 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.5-8-8-8Z" fill="#2f7a5c" />
         <circle cx="12" cy="10" r="3.2" fill="#fff" />
       </svg>
-      LocalHub
+      YookA_Map
     </RouterLink>
 
     <nav>

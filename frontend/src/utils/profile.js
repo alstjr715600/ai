@@ -9,11 +9,11 @@ const DEFAULT_PROFILE = {
 }
 
 export function saveProfile(profile) {
-  localStorage.setItem('localhub-profile', JSON.stringify(profile))
+  localStorage.setItem('YookA_Map-profile', JSON.stringify(profile))
 }
 
 export function getProfile() {
-  const saved = localStorage.getItem('localhub-profile')
+  const saved = localStorage.getItem('YookA_Map-profile')
 
   if (!saved) {
     return DEFAULT_PROFILE

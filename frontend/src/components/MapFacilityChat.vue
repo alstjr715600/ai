@@ -1,5 +1,5 @@
 <script setup>
-import { nextTick, ref } from 'vue'
+import { nextTick, onBeforeUnmount, ref } from 'vue'
 import api from '../services/api'
 
 const emit = defineEmits([
@@ -10,6 +10,15 @@ const isOpen = ref(false)
 const inputMessage = ref('')
 const loading = ref(false)
 const messageContainer = ref(null)
+
+const selectedFacility = ref(null)
+const showDetailModal = ref(false)
+const mapContainer = ref(null)
+const mapError = ref('')
+
+let detailMap = null
+let detailMarker = null
+let kakaoScriptPromise = null
 
 const messages = ref([
   {
@@ -93,9 +102,231 @@ function handleEnter(event) {
   sendMessage()
 }
 
-function selectFacility(item) {
-  emit('select-facility', item)
+function getLatitude(item) {
+  const value =
+    item.latitude ??
+    item.lat ??
+    item.y
+
+  return Number(value)
 }
+
+function getLongitude(item) {
+  const value =
+    item.longitude ??
+    item.lng ??
+    item.lon ??
+    item.x
+
+  return Number(value)
+}
+
+async function selectFacility(item) {
+  selectedFacility.value = item
+  showDetailModal.value = true
+  mapError.value = ''
+
+  emit('select-facility', item)
+
+  await nextTick()
+  await showKakaoMap(item)
+}
+
+function closeDetailModal() {
+  showDetailModal.value = false
+  selectedFacility.value = null
+  mapError.value = ''
+
+  if (detailMarker) {
+    detailMarker.setMap(null)
+    detailMarker = null
+  }
+
+  detailMap = null
+}
+
+function loadKakaoMapScript() {
+  if (window.kakao?.maps) {
+    return Promise.resolve()
+  }
+
+  if (kakaoScriptPromise) {
+    return kakaoScriptPromise
+  }
+
+  kakaoScriptPromise = new Promise((resolve, reject) => {
+    const existingScript = document.querySelector(
+      'script[data-kakao-map-sdk="true"]'
+    )
+
+    if (existingScript) {
+      existingScript.addEventListener('load', () => {
+        window.kakao.maps.load(resolve)
+      })
+
+      existingScript.addEventListener('error', reject)
+      return
+    }
+
+    const kakaoKey = import.meta.env.VITE_KAKAO_MAP_KEY
+
+    if (!kakaoKey) {
+      reject(
+        new Error(
+          'VITE_KAKAO_MAP_KEY가 설정되어 있지 않습니다.'
+        )
+      )
+      return
+    }
+
+    const script = document.createElement('script')
+
+    script.dataset.kakaoMapSdk = 'true'
+    script.async = true
+    script.src =
+      `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoKey}&autoload=false`
+
+    script.onload = () => {
+      window.kakao.maps.load(resolve)
+    }
+
+    script.onerror = () => {
+      reject(
+        new Error(
+          '카카오 지도 SDK를 불러오지 못했습니다.'
+        )
+      )
+    }
+
+    document.head.appendChild(script)
+  })
+
+  return kakaoScriptPromise
+}
+
+async function showKakaoMap(item) {
+  const latitude = getLatitude(item)
+  const longitude = getLongitude(item)
+
+  if (
+    !Number.isFinite(latitude) ||
+    !Number.isFinite(longitude)
+  ) {
+    mapError.value =
+      '이 시설의 위도와 경도 정보가 없습니다.'
+    return
+  }
+
+  try {
+    await loadKakaoMapScript()
+    await nextTick()
+
+    if (!mapContainer.value) return
+
+    const position =
+      new window.kakao.maps.LatLng(
+        latitude,
+        longitude
+      )
+
+    detailMap = new window.kakao.maps.Map(
+      mapContainer.value,
+      {
+        center: position,
+        level: 3
+      }
+    )
+
+    detailMarker = new window.kakao.maps.Marker({
+      position
+    })
+
+    detailMarker.setMap(detailMap)
+
+    const infoWindow =
+      new window.kakao.maps.InfoWindow({
+        content: `
+          <div style="
+            min-width:150px;
+            padding:8px 12px;
+            font-size:13px;
+            text-align:center;
+            color:#222;
+          ">
+            ${escapeHtml(item.name)}
+          </div>
+        `
+      })
+
+    infoWindow.open(detailMap, detailMarker)
+
+    setTimeout(() => {
+      detailMap.relayout()
+      detailMap.setCenter(position)
+    }, 100)
+  } catch (error) {
+    console.error('카카오 지도 오류:', error)
+
+    mapError.value =
+      error.message ??
+      '카카오 지도를 표시하지 못했습니다.'
+  }
+}
+
+function escapeHtml(text) {
+  return String(text ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
+}
+
+function openKakaoMap() {
+  if (!selectedFacility.value) return
+
+  const item = selectedFacility.value
+  const latitude = getLatitude(item)
+  const longitude = getLongitude(item)
+
+  let url
+
+  if (
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude)
+  ) {
+    url =
+      `https://map.kakao.com/link/map/` +
+      `${encodeURIComponent(item.name)},` +
+      `${latitude},${longitude}`
+  } else {
+    url =
+      `https://map.kakao.com/?q=` +
+      encodeURIComponent(
+        item.address || item.name
+      )
+  }
+
+  window.open(url, '_blank', 'noopener,noreferrer')
+}
+
+function callFacility() {
+  const phone = selectedFacility.value?.phone
+
+  if (!phone) return
+
+  window.location.href =
+    `tel:${phone.replace(/[^0-9+]/g, '')}`
+}
+
+onBeforeUnmount(() => {
+  if (detailMarker) {
+    detailMarker.setMap(null)
+  }
+
+  detailMarker = null
+  detailMap = null
+})
 </script>
 
 <template>
@@ -160,13 +391,23 @@ function selectFacility(item) {
                 <strong>{{ item.name }}</strong>
 
                 <span class="meta">
-                  {{ item.distance_km }}km · {{ item.district }}
+                  {{ item.distance_km }}km ·
+                  {{ item.district }}
                 </span>
 
-                <span class="address">{{ item.address }}</span>
+                <span class="address">
+                  {{ item.address }}
+                </span>
 
-                <span v-if="item.phone" class="phone">
+                <span
+                  v-if="item.phone"
+                  class="phone"
+                >
                   📞 {{ item.phone }}
+                </span>
+
+                <span class="detail-guide">
+                  눌러서 상세 위치 확인하기
                 </span>
               </button>
             </div>
@@ -176,7 +417,7 @@ function selectFacility(item) {
             v-if="loading"
             class="chat-loading"
           >
-            <span class="loading-dots">가까운 시설을 찾는 중이에요...</span>
+            가까운 시설을 찾는 중이에요...
           </div>
         </div>
 
@@ -203,6 +444,114 @@ function selectFacility(item) {
         </form>
       </aside>
     </Transition>
+
+    <Teleport to="body">
+      <Transition name="modal-fade">
+        <div
+          v-if="showDetailModal && selectedFacility"
+          class="facility-modal-overlay"
+          @click.self="closeDetailModal"
+        >
+          <section class="facility-modal">
+            <header class="facility-modal-header">
+              <div>
+                <p class="facility-type">
+                  {{ selectedFacility.facility_type || '시설 상세' }}
+                </p>
+
+                <h2>
+                  {{ selectedFacility.name }}
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                class="facility-modal-close"
+                aria-label="상세 창 닫기"
+                @click="closeDetailModal"
+              >
+                ×
+              </button>
+            </header>
+
+            <div class="facility-detail-info">
+              <div class="detail-row">
+                <span class="detail-label">주소</span>
+                <span>
+                  {{ selectedFacility.address || '정보 없음' }}
+                </span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">자치구</span>
+                <span>
+                  {{ selectedFacility.district || '정보 없음' }}
+                </span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">거리</span>
+                <span>
+                  {{
+                    selectedFacility.distance_km != null
+                      ? `${selectedFacility.distance_km}km`
+                      : '정보 없음'
+                  }}
+                </span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">전화번호</span>
+                <span>
+                  {{ selectedFacility.phone || '정보 없음' }}
+                </span>
+              </div>
+            </div>
+
+            <div class="facility-map-area">
+              <div
+                v-show="!mapError"
+                ref="mapContainer"
+                class="facility-map"
+              />
+
+              <div
+                v-if="mapError"
+                class="map-error"
+              >
+                <p>{{ mapError }}</p>
+
+                <button
+                  type="button"
+                  @click="openKakaoMap"
+                >
+                  카카오맵에서 검색하기
+                </button>
+              </div>
+            </div>
+
+            <div class="facility-modal-actions">
+              <button
+                v-if="selectedFacility.phone"
+                type="button"
+                class="call-button"
+                @click="callFacility"
+              >
+                전화하기
+              </button>
+
+              <button
+                type="button"
+                class="kakao-map-button"
+                @click="openKakaoMap"
+              >
+                카카오맵 크게 보기
+              </button>
+            </div>
+          </section>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -223,14 +572,20 @@ function selectFacility(item) {
   padding: 0;
   border: 0;
   border-radius: var(--radius-pill);
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 100%
+  );
   color: #fff;
   box-shadow: var(--shadow-md);
   font-size: 24px;
   cursor: pointer;
   display: grid;
   place-items: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .chat-floating-button:hover {
@@ -288,12 +643,6 @@ function selectFacility(item) {
   cursor: pointer;
   display: grid;
   place-items: center;
-  transition: background 0.15s ease;
-}
-
-.chat-close-button:hover {
-  background: var(--color-primary-soft);
-  color: var(--color-primary-dark);
 }
 
 .chat-messages {
@@ -332,7 +681,6 @@ function selectFacility(item) {
   border-bottom-right-radius: 4px;
   background: var(--color-primary);
   color: #fff;
-  border: none;
 }
 
 .chat-message.assistant .message-bubble {
@@ -360,7 +708,10 @@ function selectFacility(item) {
   background: var(--color-surface);
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .facility-result-card:hover {
@@ -387,14 +738,20 @@ function selectFacility(item) {
   line-height: 1.4;
 }
 
+.detail-guide {
+  margin-top: 6px;
+  color: var(--color-primary-dark);
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .chat-loading {
-  color: var(--color-ink-soft);
-  font-size: 13px;
   padding: 8px 12px;
-  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  width: fit-content;
+  background: var(--color-surface);
+  color: var(--color-ink-soft);
+  font-size: 13px;
 }
 
 .chat-input-area {
@@ -416,7 +773,6 @@ function selectFacility(item) {
   border-radius: var(--radius-md);
   font: inherit;
   font-size: 14px;
-  line-height: 1.4;
 }
 
 .chat-input-area button {
@@ -428,11 +784,6 @@ function selectFacility(item) {
   color: #fff;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.chat-input-area button:hover:not(:disabled) {
-  background: var(--color-primary-dark);
 }
 
 .chat-input-area button:disabled {
@@ -440,15 +791,157 @@ function selectFacility(item) {
   cursor: not-allowed;
 }
 
+.facility-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.48);
+}
+
+.facility-modal {
+  width: min(620px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+}
+
+.facility-modal-header {
+  padding: 22px 24px 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid #ececec;
+}
+
+.facility-type {
+  margin: 0 0 5px;
+  color: #777;
+  font-size: 12px;
+}
+
+.facility-modal-header h2 {
+  margin: 0;
+  color: #222;
+  font-size: 22px;
+}
+
+.facility-modal-close {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #f3f3f3;
+  color: #333;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.facility-detail-info {
+  padding: 18px 24px;
+  display: grid;
+  gap: 12px;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 12px;
+  color: #333;
+  font-size: 14px;
+}
+
+.detail-label {
+  color: #777;
+  font-weight: 700;
+}
+
+.facility-map-area {
+  padding: 0 24px;
+}
+
+.facility-map {
+  width: 100%;
+  height: 320px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #eeeeee;
+}
+
+.map-error {
+  min-height: 240px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: #f5f5f5;
+  color: #666;
+  text-align: center;
+}
+
+.map-error button {
+  margin-top: 12px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #fee500;
+  color: #191919;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.facility-modal-actions {
+  padding: 18px 24px 24px;
+  display: flex;
+  gap: 10px;
+}
+
+.facility-modal-actions button {
+  flex: 1;
+  height: 46px;
+  border: 0;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.call-button {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.kakao-map-button {
+  background: #fee500;
+  color: #191919;
+}
+
 .chat-slide-enter-active,
-.chat-slide-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+.chat-slide-leave-active,
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .chat-slide-enter-from,
 .chat-slide-leave-to {
   opacity: 0;
   transform: translateY(15px);
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
 }
 
 @media (max-width: 600px) {
@@ -467,6 +960,31 @@ function selectFacility(item) {
   .chat-floating-button {
     width: 54px;
     height: 54px;
+  }
+
+  .facility-modal-overlay {
+    padding: 12px;
+  }
+
+  .facility-modal-header {
+    padding: 18px;
+  }
+
+  .facility-detail-info {
+    padding: 16px 18px;
+  }
+
+  .facility-map-area {
+    padding: 0 18px;
+  }
+
+  .facility-map {
+    height: 260px;
+  }
+
+  .facility-modal-actions {
+    padding: 16px 18px 20px;
+    flex-direction: column;
   }
 }
 </style>
