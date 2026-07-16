@@ -1,0 +1,327 @@
+[
+  {
+    "district_code": "11680",
+    "district_name": "강남구",
+    "base_scores": {
+      "CHILDCARE": 85,
+      "PARK": 70,
+      "MEDICAL": 92,
+      "SAFETY": 77,
+      "AIR": 82,
+      "SCHOOL": 92,
+      "CULTURE": 81
+    }
+  },
+  {
+    "district_code": "11740",
+    "district_name": "강동구",
+    "base_scores": {
+      "CHILDCARE": 92,
+      "PARK": 70,
+      "MEDICAL": 89,
+      "SAFETY": 71,
+      "AIR": 72,
+      "SCHOOL": 87,
+      "CULTURE": 78
+    }
+  },
+  {
+    "district_code": "11305",
+    "district_name": "강북구",
+    "base_scores": {
+      "CHILDCARE": 75,
+      "PARK": 100,
+      "MEDICAL": 74,
+      "SAFETY": 94,
+      "AIR": 90,
+      "SCHOOL": 72,
+      "CULTURE": 86
+    }
+  },
+  {
+    "district_code": "11500",
+    "district_name": "강서구",
+    "base_scores": {
+      "CHILDCARE": 97,
+      "PARK": 70,
+      "MEDICAL": 88,
+      "SAFETY": 78,
+      "AIR": 84,
+      "SCHOOL": 93,
+      "CULTURE": 82
+    }
+  },
+  {
+    "district_code": "11620",
+    "district_name": "관악구",
+    "base_scores": {
+      "CHILDCARE": 82,
+      "PARK": 70,
+      "MEDICAL": 79,
+      "SAFETY": 77,
+      "AIR": 81,
+      "SCHOOL": 80,
+      "CULTURE": 75
+    }
+  },
+  {
+    "district_code": "11215",
+    "district_name": "광진구",
+    "base_scores": {
+      "CHILDCARE": 78,
+      "PARK": 70,
+      "MEDICAL": 79,
+      "SAFETY": 83,
+      "AIR": 91,
+      "SCHOOL": 79,
+      "CULTURE": 74
+    }
+  },
+  {
+    "district_code": "11530",
+    "district_name": "구로구",
+    "base_scores": {
+      "CHILDCARE": 92,
+      "PARK": 70,
+      "MEDICAL": 79,
+      "SAFETY": 75,
+      "AIR": 78,
+      "SCHOOL": 85,
+      "CULTURE": 78
+    }
+  },
+  {
+    "district_code": "11545",
+    "district_name": "금천구",
+    "base_scores": {
+      "CHILDCARE": 75,
+      "PARK": 70,
+      "MEDICAL": 74,
+      "SAFETY": 74,
+      "AIR": 76,
+      "SCHOOL": 76,
+      "CULTURE": 73
+    }
+  },
+  {
+    "district_code": "11350",
+    "district_name": "노원구",
+    "base_scores": {
+      "CHILDCARE": 96,
+      "PARK": 70,
+      "MEDICAL": 84,
+      "SAFETY": 70,
+      "AIR": 70,
+      "SCHOOL": 100,
+      "CULTURE": 85
+    }
+  },
+  {
+    "district_code": "11320",
+    "district_name": "도봉구",
+    "base_scores": {
+      "CHILDCARE": 79,
+      "PARK": 70,
+      "MEDICAL": 75,
+      "SAFETY": 88,
+      "AIR": 100,
+      "SCHOOL": 81,
+      "CULTURE": 76
+    }
+  },
+  {
+    "district_code": "11230",
+    "district_name": "동대문구",
+    "base_scores": {
+      "CHILDCARE": 85,
+      "PARK": 70,
+      "MEDICAL": 79,
+      "SAFETY": 77,
+      "AIR": 82,
+      "SCHOOL": 79,
+      "CULTURE": 74
+    }
+  },
+  {
+    "district_code": "11590",
+    "district_name": "동작구",
+    "base_scores": {
+      "CHILDCARE": 82,
+      "PARK": 70,
+      "MEDICAL": 78,
+      "SAFETY": 74,
+      "AIR": 77,
+      "SCHOOL": 79,
+      "CULTURE": 74
+    }
+  },
+  {
+    "district_code": "11440",
+    "district_name": "마포구",
+    "base_scores": {
+      "CHILDCARE": 83,
+      "PARK": 70,
+      "MEDICAL": 82,
+      "SAFETY": 74,
+      "AIR": 76,
+      "SCHOOL": 80,
+      "CULTURE": 75
+    }
+  },
+  {
+    "district_code": "11410",
+    "district_name": "서대문구",
+    "base_scores": {
+      "CHILDCARE": 79,
+      "PARK": 70,
+      "MEDICAL": 74,
+      "SAFETY": 85,
+      "AIR": 95,
+      "SCHOOL": 77,
+      "CULTURE": 74
+    }
+  },
+  {
+    "district_code": "11650",
+    "district_name": "서초구",
+    "base_scores": {
+      "CHILDCARE": 84,
+      "PARK": 70,
+      "MEDICAL": 85,
+      "SAFETY": 76,
+      "AIR": 80,
+      "SCHOOL": 82,
+      "CULTURE": 76
+    }
+  },
+  {
+    "district_code": "11200",
+    "district_name": "성동구",
+    "base_scores": {
+      "CHILDCARE": 80,
+      "PARK": 70,
+      "MEDICAL": 83,
+      "SAFETY": 84,
+      "AIR": 93,
+      "SCHOOL": 79,
+      "CULTURE": 74
+    }
+  },
+  {
+    "district_code": "11290",
+    "district_name": "성북구",
+    "base_scores": {
+      "CHILDCARE": 85,
+      "PARK": 70,
+      "MEDICAL": 81,
+      "SAFETY": 83,
+      "AIR": 91,
+      "SCHOOL": 87,
+      "CULTURE": 78
+    }
+  },
+  {
+    "district_code": "11710",
+    "district_name": "송파구",
+    "base_scores": {
+      "CHILDCARE": 100,
+      "PARK": 70,
+      "MEDICAL": 100,
+      "SAFETY": 80,
+      "AIR": 87,
+      "SCHOOL": 99,
+      "CULTURE": 84
+    }
+  },
+  {
+    "district_code": "11470",
+    "district_name": "양천구",
+    "base_scores": {
+      "CHILDCARE": 86,
+      "PARK": 70,
+      "MEDICAL": 83,
+      "SAFETY": 72,
+      "AIR": 73,
+      "SCHOOL": 88,
+      "CULTURE": 79
+    }
+  },
+  {
+    "district_code": "11560",
+    "district_name": "영등포구",
+    "base_scores": {
+      "CHILDCARE": 88,
+      "PARK": 70,
+      "MEDICAL": 82,
+      "SAFETY": 73,
+      "AIR": 75,
+      "SCHOOL": 81,
+      "CULTURE": 76
+    }
+  },
+  {
+    "district_code": "11170",
+    "district_name": "용산구",
+    "base_scores": {
+      "CHILDCARE": 73,
+      "PARK": 70,
+      "MEDICAL": 73,
+      "SAFETY": 73,
+      "AIR": 75,
+      "SCHOOL": 73,
+      "CULTURE": 72
+    }
+  },
+  {
+    "district_code": "11380",
+    "district_name": "은평구",
+    "base_scores": {
+      "CHILDCARE": 85,
+      "PARK": 70,
+      "MEDICAL": 82,
+      "SAFETY": 87,
+      "AIR": 98,
+      "SCHOOL": 88,
+      "CULTURE": 79
+    }
+  },
+  {
+    "district_code": "11110",
+    "district_name": "종로구",
+    "base_scores": {
+      "CHILDCARE": 70,
+      "PARK": 70,
+      "MEDICAL": 70,
+      "SAFETY": 70,
+      "AIR": 70,
+      "SCHOOL": 71,
+      "CULTURE": 70
+    }
+  },
+  {
+    "district_code": "11140",
+    "district_name": "중구",
+    "base_scores": {
+      "CHILDCARE": 70,
+      "PARK": 70,
+      "MEDICAL": 71,
+      "SAFETY": 74,
+      "AIR": 77,
+      "SCHOOL": 70,
+      "CULTURE": 70
+    }
+  },
+  {
+    "district_code": "11260",
+    "district_name": "중랑구",
+    "base_scores": {
+      "CHILDCARE": 83,
+      "PARK": 70,
+      "MEDICAL": 79,
+      "SAFETY": 75,
+      "AIR": 78,
+      "SCHOOL": 82,
+      "CULTURE": 76
+    }
+  }
+]
